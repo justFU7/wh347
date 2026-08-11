@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free WH-347 Certified Payroll Calculator — runs in your browser, no signup</title>
+<meta name="description" content="Free WH-347 certified payroll calculator. Enter hours and rates; it computes straight time, overtime at 1.5x, deductions, and net pay, then prints the Davis-Bacon form layout. Runs entirely in your browser — SSNs never leave your computer.">
+<link rel="canonical" href="https://justfu7.github.io/wh347/app.html">
+<style>
+  :root {
+    --ink: #1a1a1a; --line: #333; --accent: #1a4b8c; --bg: #f4f5f7;
+    --ok: #1a7f37; --warn: #b35900; --err: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink); background: var(--bg); font-size: 14px; }
+  header.appbar { background: var(--accent); color: #fff; padding: 12px 20px; display: flex;
+    align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header.appbar h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  header.appbar .tag { font-size: 12px; opacity: .85; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font-size: 13px; padding: 7px 13px; border-radius: 6px; border: 1px solid #cfd4dc;
+    background: #fff; cursor: pointer; color: var(--ink); }
+  button:hover { background: #eef1f5; }
+  button.primary { background: #fff; color: var(--accent); font-weight: 600; border-color: #fff; }
+  button.danger { color: var(--err); border-color: #e6b8b4; }
+  .wrap { max-width: 1180px; margin: 18px auto; padding: 0 16px 60px; }
+  .card { background: #fff; border: 1px solid #e3e6ea; border-radius: 8px; padding: 16px 18px;
+    margin-bottom: 16px; }
+  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: #55606e;
+    margin: 0 0 12px; }
+  .grid { display: grid; gap: 10px 16px; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .03em;
+    color: #6b7480; margin-bottom: 3px; }
+  input, select, textarea { width: 100%; padding: 7px 9px; border: 1px solid #cfd4dc;
+    border-radius: 5px; font-size: 13px; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid #bcd0ea; border-color: var(--accent); }
+  .emp { border: 1px solid #dde1e6; border-radius: 8px; padding: 14px; margin-bottom: 14px; background: #fafbfc; }
+  .emp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .emp-head strong { font-size: 13px; }
+  .days { display: grid; grid-template-columns: 150px repeat(7, 1fr) 70px; gap: 4px; align-items: end;
+    margin: 10px 0; overflow-x: auto; }
+  .days .cell label { font-size: 9px; }
+  .days input { padding: 5px 4px; text-align: center; }
+  .row-label { font-size: 11px; color: #55606e; align-self: center; padding-bottom: 6px; font-weight: 600; }
+  .money-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; }
+  .calc { background: #eef4fb; border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+  .calc b { display: block; font-size: 15px; color: var(--accent); }
+  .hint { font-size: 12px; color: #6b7480; margin: 4px 0 0; }
+  .banner { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; }
+  .banner.warn { background: #fff4e5; color: var(--warn); border: 1px solid #ffd9a8; }
+  .totals { display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; }
+  .totals div b { color: var(--accent); }
+  .flex { display: flex; gap: 8px; align-items: center; }
+  .muted { color: #8a929c; }
+  .chk { display: flex; align-items: flex-start; gap: 8px; margin: 8px 0; }
+  .chk input { width: auto; margin-top: 3px; }
+  .chk label { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--ink); }
+
+  /* ---------- PRINT: WH-347 form layout ---------- */
+  .print-only { display: none; }
+  @media print {
+    body { background: #fff; font-size: 9px; }
+    .no-print { display: none !important; }
+    .print-only { display: block; }
+    .wrap { margin: 0; padding: 0; max-width: none; }
+    @page { size: landscape; margin: 0.4in; }
+    .sheet { page-break-after: always; }
+    table.wh { width: 100%; border-collapse: collapse; }
+    table.wh th, table.wh td { border: 1px solid #000; padding: 2px 3px; font-size: 8px; text-align: center; }
+    table.wh th { background: #eee; }
+    .formhdr { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .formhdr h3 { margin: 0; font-size: 12px; }
+    .soc { font-size: 10px; line-height: 1.5; }
+    .soc .fill { border-bottom: 1px solid #000; display: inline-block; min-width: 120px; padding: 0 4px; }
+    /* Drawn, not a glyph: the (a)/(b) choice is legally meaningful and U+2612 is
+       missing from some print fonts, which would silently render both as empty. */
+    .cbx { display: inline-block; width: 8px; height: 8px; border: 1px solid #000;
+      vertical-align: middle; margin-right: 3px; position: relative; }
+    .cbx.on { background: #000; }
+  }
+</style>
+</head>
+<body>
+<div class="no-print" style="background:#fff4e5;border-bottom:1px solid #ffd9a8;color:#7a5300;
+  font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:10px 16px;text-align:center">
+  <strong>Free demo.</strong> Fully working &mdash; every calculation is real. Printouts carry a
+  &ldquo;DEMO COPY&rdquo; watermark. <a href="./#buy" style="color:#12365f;font-weight:700">Get the
+  clean file you can file &mdash; $79 &rarr;</a>
+</div>
+
+<header class="appbar no-print">
+  <div>
+    <h1>WH-347 Certified Payroll Generator</h1>
+    <div class="tag">Davis-Bacon compliant · runs 100% in your browser · no data leaves this device</div>
+  </div>
+  <div class="toolbar">
+    <button onclick="addEmployee()">+ Add employee</button>
+    <button onclick="saveLocal()">Save</button>
+    <button onclick="exportJSON()">Export file</button>
+    <button onclick="importJSON()">Import file</button>
+    <button class="primary" onclick="window.print()">Generate PDF ▸</button>
+  </div>
+</header>
+
+<div class="wrap no-print">
+  <div class="banner warn">
+    <strong>Not legal advice.</strong> This tool formats DOL Form WH-347 and does the arithmetic. You are
+    responsible for correct labor classifications, prevailing-wage rates, and fringe determinations for your
+    project. Verify against your wage determination on SAM.gov before filing.
+  </div>
+
+  <div class="card">
+    <h2>Project & Contractor</h2>
+    <div class="grid g3">
+      <div><label>Contractor / Subcontractor name</label><input id="p_contractor" oninput="save1()"></div>
+      <div><label>Address</label><input id="p_address" oninput="save1()"></div>
+      <div>
+        <label>This payroll is for a</label>
+        <select id="p_type" onchange="save1()">
+          <option value="Contractor">Contractor</option>
+          <option value="Subcontractor">Subcontractor</option>
+        </select>
+      </div>
+      <div><label>Payroll No.</label><input id="p_payrollno" oninput="save1()"></div>
+      <div><label>Week ending (MM/DD/YYYY)</label><input id="p_weekending" placeholder="07/12/2026" oninput="onWeekChange()"></div>
+      <div><label>Project & location</label><input id="p_project" oninput="save1()"></div>
+      <div><label>Project or contract no.</label><input id="p_contractno" oninput="save1()"></div>
+    </div>
+    <p class="hint">Week ending sets the 7 day-column dates automatically (the week ending on that date).</p>
+  </div>
+
+  <div class="card">
+    <h2>Employees & Hours</h2>
+    <div id="employees"></div>
+    <button onclick="addEmployee()">+ Add employee</button>
+    <div style="margin-top:14px" class="totals">
+      <div>Employees: <b id="t_count">0</b></div>
+      <div>Total straight hrs: <b id="t_st">0</b></div>
+      <div>Total OT hrs: <b id="t_ot">0</b></div>
+      <div>Total gross this week: <b id="t_gross">$0.00</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Statement of Compliance (page 2)</h2>
+    <div class="grid g3">
+      <div><label>Signatory name</label><input id="s_name" oninput="save1()"></div>
+      <div><label>Title</label><input id="s_title" oninput="save1()"></div>
+      <div><label>Date signed (MM/DD/YYYY)</label><input id="s_date" oninput="save1()"></div>
+    </div>
+    <div style="margin-top:12px">
+      <label>Fringe benefits — choose how paid</label>
+      <div class="chk"><input type="radio" name="fringe" id="fr_plans" value="plans" checked onchange="save1()">
+        <label for="fr_plans"><b>(a)</b> Fringe benefits paid to approved plans, funds, or programs</label></div>
+      <div class="chk"><input type="radio" name="fringe" id="fr_cash" value="cash" onchange="save1()">
+        <label for="fr_cash"><b>(b)</b> Fringe benefits paid in cash (included in the rates above)</label></div>
+    </div>
+    <div style="margin-top:8px">
+      <label>Exceptions (if any)</label>
+      <textarea id="s_exceptions" rows="2" oninput="save1()" placeholder="Explain any exceptions to (a) or (b)"></textarea>
+    </div>
+    <div style="margin-top:8px">
+      <label>Remarks</label>
+      <textarea id="s_remarks" rows="2" oninput="save1()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT OUTPUT -->
+<div class="print-only" id="printout"></div>
+
+<input type="file" id="fileinput" accept="application/json" style="display:none">
+
+<script>
+"use strict";
+
+// ---------- state ----------
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+let state = { project: {}, employees: [], statement: {} };
+
+const $ = id => document.getElementById(id);
+const money = n => "$" + (isFinite(n) ? n : 0).toFixed(2);
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+
+function blankEmployee() {
+  return {
+    name: "", addr: "", ssn: "", classification: "",
+    exemptions: "", // withholding exemptions
+    st: [0,0,0,0,0,0,0], ot: [0,0,0,0,0,0,0],
+    rate: 0, otRate: 0, fringe: 0,
+    fica: 0, fedTax: 0, stateTax: 0, other: 0,
+    projectGross: 0, // gross this project (may differ from all-projects gross)
+    allGross: 0      // gross all projects this week (optional)
+  };
+}
+
+// ---------- rendering ----------
+function render() {
+  const box = $("employees");
+  box.innerHTML = "";
+  state.employees.forEach((e, i) => box.appendChild(employeeEl(e, i)));
+  recalcTotals();
+}
+
+function employeeEl(e, i) {
+  const wrap = document.createElement("div");
+  wrap.className = "emp";
+  const dates = weekDates();
+  const dayCols = DAYS.map((d, di) =>
+    `<div class="cell"><label>${d}${dates[di] ? "<br>"+dates[di] : ""}</label>
+      <input type="number" min="0" step="0.5" value="${e.st[di]||""}"
+        oninput="setDay(${i},'st',${di},this.value)"></div>`).join("");
+  const otCols = DAYS.map((d, di) =>
+    `<div class="cell"><input type="number" min="0" step="0.5" value="${e.ot[di]||""}"
+        oninput="setDay(${i},'ot',${di},this.value)"></div>`).join("");
+
+  const c = computeEmployee(e);
+  wrap.innerHTML = `
+    <div class="emp-head">
+      <strong>Employee ${i+1}</strong>
+      <button class="danger" onclick="removeEmployee(${i})">Remove</button>
+    </div>
+    <div class="grid g4">
+      <div><label>Name</label><input value="${esc(e.name)}" oninput="setField(${i},'name',this.value)"></div>
+      <div><label>Address</label><input value="${esc(e.addr)}" oninput="setField(${i},'addr',this.value)"></div>
+      <div><label>SSN (last 4 only — stays on device)</label><input value="${esc(e.ssn)}" maxlength="4"
+        placeholder="1234" oninput="setField(${i},'ssn',this.value)"></div>
+      <div><label>Work classification</label><input value="${esc(e.classification)}"
+        oninput="setField(${i},'classification',this.value)" placeholder="e.g. Electrician"></div>
+      <div><label>W/H exemptions</label><input value="${esc(e.exemptions)}"
+        oninput="setField(${i},'exemptions',this.value)"></div>
+    </div>
+
+    <div class="days">
+      <div class="row-label">Straight hrs</div>${dayCols}
+      <div class="cell"><label>Total ST</label><input id="c_st_${i}" value="${c.stTotal}" readonly></div>
+    </div>
+    <div class="days">
+      <div class="row-label">Overtime hrs</div>${otCols}
+      <div class="cell"><label>Total OT</label><input id="c_ot_${i}" value="${c.otTotal}" readonly></div>
+    </div>
+
+    <div class="money-row">
+      <div><label>Base rate $/hr</label><input type="number" step="0.01" value="${e.rate||""}"
+        oninput="setNum(${i},'rate',this.value)"></div>
+      <div><label>OT rate $/hr</label><input type="number" step="0.01" value="${e.otRate||""}"
+        oninput="setNum(${i},'otRate',this.value)" placeholder="${(num(e.rate)*1.5).toFixed(2)}"></div>
+      <div><label>Fringe $/hr</label><input type="number" step="0.01" value="${e.fringe||""}"
+        oninput="setNum(${i},'fringe',this.value)"></div>
+      <div class="calc">Gross (this project)<b id="c_gross_${i}">${money(c.gross)}</b></div>
+      <div><label>Gross all projects (opt.)</label><input type="number" step="0.01" value="${e.allGross||""}"
+        oninput="setNum(${i},'allGross',this.value)" placeholder="${c.gross.toFixed(2)}"></div>
+      <div class="calc">Net pay<b id="c_net_${i}">${money(c.net)}</b></div>
+    </div>
+
+    <div class="money-row" style="margin-top:6px">
+      <div><label>FICA</label><input type="number" step="0.01" value="${e.fica||""}"
+        oninput="setNum(${i},'fica',this.value)"></div>
+      <div><label>Fed W/H tax</label><input type="number" step="0.01" value="${e.fedTax||""}"
+        oninput="setNum(${i},'fedTax',this.value)"></div>
+      <div><label>State tax</label><input type="number" step="0.01" value="${e.stateTax||""}"
+        oninput="setNum(${i},'stateTax',this.value)"></div>
+      <div><label>Other</label><input type="number" step="0.01" value="${e.other||""}"
+        oninput="setNum(${i},'other',this.value)"></div>
+      <div class="calc">Total deductions<b id="c_ded_${i}">${money(c.deductions)}</b></div>
+      <div class="calc">OT auto-rate<b id="c_otr_${i}">${money(c.effOtRate)}</b><span class="muted">1.5× base if blank</span></div>
+    </div>
+  `;
+  return wrap;
+}
+
+function esc(s){ return String(s==null?"":s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+// ---------- compute ----------
+function computeEmployee(e) {
+  const stTotal = e.st.reduce((a,b)=>a+num(b),0);
+  const otTotal = e.ot.reduce((a,b)=>a+num(b),0);
+  const rate = num(e.rate);
+  const effOtRate = num(e.otRate) > 0 ? num(e.otRate) : rate * 1.5;
+  const gross = stTotal*rate + otTotal*effOtRate;
+  const deductions = num(e.fica)+num(e.fedTax)+num(e.stateTax)+num(e.other);
+  const net = gross - deductions;
+  return { stTotal, otTotal, effOtRate, gross, deductions, net };
+}
+
+function recalcTotals() {
+  let st=0, ot=0, gross=0;
+  state.employees.forEach(e => {
+    const c = computeEmployee(e);
+    st += c.stTotal; ot += c.otTotal; gross += c.gross;
+  });
+  $("t_count").textContent = state.employees.length;
+  $("t_st").textContent = st;
+  $("t_ot").textContent = ot;
+  $("t_gross").textContent = money(gross);
+}
+
+// ---------- week dates ----------
+function weekDates() {
+  const raw = $("p_weekending") ? $("p_weekending").value : (state.project.weekending||"");
+  const d = parseDate(raw);
+  if (!d) return ["","","","","","",""];
+  // week ending = Saturday-ish; show the 7 days ending on that date
+  const out = [];
+  for (let i=6;i>=0;i--){
+    const dd = new Date(d.getTime());
+    dd.setDate(d.getDate()-i);
+    out.push((dd.getMonth()+1)+"/"+dd.getDate());
+  }
+  return out;
+}
+function parseDate(s){
+  if(!s) return null;
+  const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if(!m) return null;
+  let [_,mo,da,yr]=m; yr=yr.length===2?"20"+yr:yr;
+  const d=new Date(+yr, +mo-1, +da);
+  return isNaN(d.getTime())?null:d;
+}
+
+// ---------- mutations ----------
+function addEmployee(){ state.employees.push(blankEmployee()); render(); saveLocal(true); }
+function removeEmployee(i){ state.employees.splice(i,1); render(); saveLocal(true); }
+function setField(i,k,v){ state.employees[i][k]=v; saveLocal(true); }
+function setNum(i,k,v){ state.employees[i][k]=num(v); refreshEmp(i); saveLocal(true); }
+function setDay(i,kind,di,v){ state.employees[i][kind][di]=num(v); refreshEmp(i); saveLocal(true); }
+function refreshEmp(i){
+  // Update ONLY the derived cells. A full render() here would replace the DOM node
+  // the user is typing in, dropping focus after every single keystroke.
+  const e = state.employees[i]; if(!e) return;
+  const c = computeEmployee(e);
+  const set = (id, v) => { const el = $(id); if (el) { if ("value" in el && el.tagName === "INPUT") el.value = v; else el.textContent = v; } };
+  set("c_st_"+i, c.stTotal);
+  set("c_ot_"+i, c.otTotal);
+  set("c_gross_"+i, money(c.gross));
+  set("c_net_"+i, money(c.net));
+  set("c_ded_"+i, money(c.deductions));
+  set("c_otr_"+i, money(c.effOtRate));
+  recalcTotals();
+}
+
+function collectProject(){
+  state.project = {
+    contractor:$("p_contractor").value, address:$("p_address").value, type:$("p_type").value,
+    payrollno:$("p_payrollno").value, weekending:$("p_weekending").value,
+    project:$("p_project").value, contractno:$("p_contractno").value
+  };
+  state.statement = {
+    name:$("s_name").value, title:$("s_title").value, date:$("s_date").value,
+    fringe:document.querySelector('input[name=fringe]:checked')?.value||"plans",
+    exceptions:$("s_exceptions").value, remarks:$("s_remarks").value
+  };
+}
+function save1(){ collectProject(); saveLocal(true); }
+function onWeekChange(){ collectProject(); render(); saveLocal(true); }
+
+// ---------- persistence ----------
+const KEY = "wh347_state_v1";
+function saveLocal(silent){
+  collectProject();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+  if(!silent) flash("Saved");
+}
+function loadLocal(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if(raw){ state = JSON.parse(raw); return true; }
+  } catch(e){}
+  return false;
+}
+function fillForm(){
+  const p=state.project||{}, s=state.statement||{};
+  $("p_contractor").value=p.contractor||""; $("p_address").value=p.address||"";
+  $("p_type").value=p.type||"Contractor"; $("p_payrollno").value=p.payrollno||"";
+  $("p_weekending").value=p.weekending||""; $("p_project").value=p.project||"";
+  $("p_contractno").value=p.contractno||"";
+  $("s_name").value=s.name||""; $("s_title").value=s.title||""; $("s_date").value=s.date||"";
+  $("s_exceptions").value=s.exceptions||""; $("s_remarks").value=s.remarks||"";
+  if(s.fringe==="cash") $("fr_cash").checked=true; else $("fr_plans").checked=true;
+}
+
+function exportJSON(){
+  collectProject();
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const name = (state.project.payrollno||"payroll")+"_"+(state.project.weekending||"").replace(/\//g,"-");
+  a.href=url; a.download="wh347_"+name+".json"; a.click();
+  URL.revokeObjectURL(url);
+}
+function importJSON(){ $("fileinput").click(); }
+$("fileinput").addEventListener("change", ev => {
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try { state = JSON.parse(r.result); fillForm(); render(); saveLocal(true); flash("Imported"); }
+    catch(e){ alert("Could not read that file."); }
+  };
+  r.readAsText(f);
+});
+
+function flash(msg){
+  const d=document.createElement("div");
+  d.textContent=msg;
+  d.style.cssText="position:fixed;bottom:20px;right:20px;background:#1a7f37;color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;z-index:99;box-shadow:0 2px 8px rgba(0,0,0,.2)";
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),1400);
+}
+
+// ---------- print output ----------
+function buildPrintout(){
+  collectProject();
+  const p=state.project, s=state.statement, dates=weekDates();
+  // rowspan=2: without it the second header row (FICA/Fed/State/Other/Total) falls
+  // into the day columns instead of under "Deductions".
+  const dayHead = DAYS.map((d,i)=>`<th rowspan="2">${d}<br>${dates[i]||""}</th>`).join("");
+  let rows = "";
+  state.employees.forEach((e,idx)=>{
+    const c=computeEmployee(e);
+    const stCells=e.st.map(h=>`<td>${h?num(h):""}</td>`).join("");
+    const otCells=e.ot.map(h=>`<td>${h?num(h):""}</td>`).join("");
+    rows += `
+      <tr>
+        <td rowspan="2" style="text-align:left">${esc(e.name)}<br><span style="font-size:7px">${esc(e.addr)}</span>
+          ${e.ssn?`<br><span style="font-size:7px">SSN ***-**-${esc(e.ssn)}</span>`:""}</td>
+        <td rowspan="2">${esc(e.exemptions)}</td>
+        <td rowspan="2" style="text-align:left">${esc(e.classification)}</td>
+        <td>S</td>${stCells}<td>${c.stTotal||""}</td>
+        <td rowspan="2">${c.effOtRate?money(c.effOtRate).replace("$",""):""}<br>${num(e.rate)?money(e.rate).replace("$",""):""}${num(e.fringe)?`<br><span style="font-size:7px">+${money(e.fringe).replace("$","")} fringe</span>`:""}</td>
+        <td rowspan="2">${money(e.allGross>0?e.allGross:c.gross).replace("$","")}<br>
+          <span style="font-size:7px">${money(c.gross).replace("$","")} this proj</span></td>
+        <td>${num(e.fica)?money(e.fica).replace("$",""):""}</td>
+        <td>${num(e.fedTax)?money(e.fedTax).replace("$",""):""}</td>
+        <td>${num(e.stateTax)?money(e.stateTax).replace("$",""):""}</td>
+        <td>${num(e.other)?money(e.other).replace("$",""):""}</td>
+        <td>${money(c.deductions).replace("$","")}</td>
+        <td rowspan="2">${money(c.net).replace("$","")}</td>
+      </tr>
+      <tr>
+        <td>O</td>${otCells}<td>${c.otTotal||""}</td>
+        <td></td><td></td><td></td><td></td><td></td>
+      </tr>`;
+  });
+
+  const socA = s.fringe!=="cash";
+  document.getElementById("printout").innerHTML = `
+    <div class="sheet">
+      <div class="formhdr">
+        <div><h3>Form WH-347 — Payroll</h3><div>U.S. Department of Labor · Wage and Hour Division</div></div>
+        <div style="text-align:right">
+          <div><b>${esc(p.contractor||"")}</b> (${esc(p.type||"Contractor")})</div>
+          <div>${esc(p.address||"")}</div>
+          <div>Payroll No. <b>${esc(p.payrollno||"")}</b> · Week ending <b>${esc(p.weekending||"")}</b></div>
+        </div>
+      </div>
+      <div style="margin-bottom:4px">Project & location: <b>${esc(p.project||"")}</b>
+        &nbsp;·&nbsp; Contract no.: <b>${esc(p.contractno||"")}</b></div>
+      <table class="wh">
+        <thead>
+          <tr>
+            <th rowspan="2">Name & Individual ID (last 4 SSN)</th>
+            <th rowspan="2">W/H Exempt.</th>
+            <th rowspan="2">Work Classification</th>
+            <th rowspan="2">O/S</th>
+            ${dayHead}
+            <th rowspan="2">Total Hrs</th>
+            <th rowspan="2">Rate of Pay (OT / base)</th>
+            <th rowspan="2">Gross Amount Earned</th>
+            <th colspan="5">Deductions</th>
+            <th rowspan="2">Net Wages Paid</th>
+          </tr>
+          <tr><th>FICA</th><th>Fed Tax</th><th>State</th><th>Other</th><th>Total</th></tr>
+        </thead>
+        <tbody>${rows||`<tr><td colspan="20">No employees entered</td></tr>`}</tbody>
+      </table>
+      <div style="font-size:7px;margin-top:4px">O = Overtime hours, S = Straight-time hours. Rate cell shows OT rate over base rate.
+        "Gross Amount Earned" shows all-projects gross with this-project gross noted beneath.</div>
+    </div>
+
+    <div class="sheet soc">
+      <h3>Statement of Compliance</h3>
+      <p>Date: <span class="fill">${esc(s.date||"")}</span></p>
+      <p>I, <span class="fill">${esc(s.name||"")}</span>, <span class="fill">${esc(s.title||"")}</span>,
+      do hereby state:</p>
+      <p><b>(1)</b> That I pay or supervise the payment of the persons employed by
+      <span class="fill">${esc(p.contractor||"")}</span> on the
+      <span class="fill">${esc(p.project||"")}</span>; that during the payroll period commencing on the week ending
+      <span class="fill">${esc(p.weekending||"")}</span>, all persons employed on said project have been paid the
+      full weekly wages earned, that no rebates have been or will be made either directly or indirectly to or on
+      behalf of said contractor from the full weekly wages earned by any person, other than permissible deductions.</p>
+      <p><b>(2)</b> That any payrolls otherwise under this contract required to be submitted for the above period are
+      correct and complete; that the wage rates for laborers and mechanics contained therein are not less than the
+      applicable wage rates contained in any wage determination incorporated into the contract; that the
+      classifications set forth therein for each laborer or mechanic conform with the work performed.</p>
+      <p><b>(3)</b> That any apprentices employed in the above period are duly registered in a bona fide
+      apprenticeship program registered with a State apprenticeship agency or the U.S. DOL.</p>
+      <p><b>(4)</b> That:</p>
+      <p style="margin-left:18px"><span class="cbx${socA?" on":""}" data-cb="a"></span> <b>(a)</b> WHERE FRINGE BENEFITS ARE PAID TO APPROVED PLANS, FUNDS, OR PROGRAMS —
+      in addition to the basic hourly wage rates paid, payments of fringe benefits as listed in the contract have been
+      or will be made to appropriate programs for the benefit of such employees.</p>
+      <p style="margin-left:18px"><span class="cbx${!socA?" on":""}" data-cb="b"></span> <b>(b)</b> WHERE FRINGE BENEFITS ARE PAID IN CASH —
+      each laborer or mechanic has been paid, in addition to the basic hourly wage, not less than the required fringe
+      benefit amount for the classification, paid in cash.</p>
+      <p><b>(c) EXCEPTIONS:</b> ${esc(s.exceptions||"None")}</p>
+      <p><b>Remarks:</b> ${esc(s.remarks||"")}</p>
+      <p style="margin-top:24px">Signature: <span class="fill" style="min-width:240px"></span></p>
+      <p>Name & Title: <span class="fill">${esc(s.name||"")}</span> &nbsp; <span class="fill">${esc(s.title||"")}</span></p>
+      <p style="font-size:8px;margin-top:16px">THE WILLFUL FALSIFICATION OF ANY OF THE ABOVE STATEMENTS MAY SUBJECT
+      THE CONTRACTOR OR SUBCONTRACTOR TO CIVIL OR CRIMINAL PROSECUTION (18 U.S.C. § 1001 and 31 U.S.C. § 231).</p>
+    </div>`;
+}
+window.addEventListener("beforeprint", buildPrintout);
+
+// ---------- boot ----------
+(function init(){
+  if(!loadLocal()){
+    state.employees.push(blankEmployee());
+  }
+  fillForm();
+  render();
+})();
+</script>
+
+<style>
+@media print {
+  .sheet { position: relative; }
+  .sheet::after {
+    /* two spaces: the first terminates the \2014 escape, the second is the real space */
+    content: "DEMO COPY \2014  NOT FOR SUBMISSION";
+    position: absolute; top: 40%; left: 0; right: 0; text-align: center;
+    font-size: 34px; font-weight: 800; letter-spacing: 2px;
+    color: rgba(178,0,0,.30); transform: rotate(-16deg);
+    pointer-events: none; z-index: 9999;
+  }
+}
+</style>
+</body>
+</html>
