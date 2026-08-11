@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certified Payroll WH-347 Generator — fill, calculate, and print Davis-Bacon reports in minutes</title>
+<meta name="description" content="Generate WH-347 certified payroll reports for Davis-Bacon jobs. Auto-calculates gross, overtime, deductions, and net. Runs 100% in your browser — worker SSNs never leave your computer. Free calculator; $79 one-time for the offline file.">
+<link rel="canonical" href="https://justfu7.github.io/wh347/">
+<style>
+  :root { --ink:#16202c; --accent:#1a4b8c; --accent2:#12365f; --ok:#1a7f37; --bg:#f6f8fb; --line:#e3e8ef; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink);
+    background:#fff; line-height:1.55; font-size:16px; }
+  .wrap { max-width:860px; margin:0 auto; padding:0 20px; }
+  a { color:var(--accent); }
+  .hero { background:linear-gradient(160deg,#1a4b8c,#12365f); color:#fff; padding:64px 0 56px; }
+  .hero h1 { font-size:38px; line-height:1.15; margin:0 0 16px; font-weight:700; letter-spacing:-.01em; }
+  .hero p.sub { font-size:19px; opacity:.94; margin:0 0 28px; max-width:620px; }
+  .cta { display:inline-block; background:#fff; color:var(--accent2); font-weight:700; font-size:18px;
+    padding:15px 32px; border-radius:9px; text-decoration:none; box-shadow:0 6px 18px rgba(0,0,0,.18); }
+  .cta:hover { transform:translateY(-1px); }
+  .cta.sm { font-size:16px; padding:12px 26px; }
+  .price-tag { font-size:14px; opacity:.9; margin-top:12px; }
+  .badges { margin-top:26px; display:flex; gap:22px; flex-wrap:wrap; font-size:14px; opacity:.92; }
+  .badges span::before { content:"✓ "; font-weight:700; }
+  section { padding:52px 0; border-bottom:1px solid var(--line); }
+  section h2 { font-size:27px; margin:0 0 8px; letter-spacing:-.01em; }
+  section .lead { color:#5a6675; font-size:17px; margin:0 0 28px; }
+  .pain { background:var(--bg); }
+  .pain ul { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:14px 28px; }
+  .pain li { padding-left:28px; position:relative; }
+  .pain li::before { content:"✕"; color:#b3261e; position:absolute; left:0; font-weight:700; }
+  .feat { display:grid; grid-template-columns:1fr 1fr; gap:22px 34px; }
+  .feat .f h3 { margin:0 0 5px; font-size:17px; }
+  .feat .f p { margin:0; color:#5a6675; font-size:15px; }
+  .feat .f h3::before { content:"→ "; color:var(--accent); }
+  .trust { background:#eef4fb; border:1px solid #cfe0f4; border-radius:12px; padding:24px 26px; }
+  .trust h2 { color:var(--accent2); }
+  .steps { counter-reset:s; display:grid; gap:16px; }
+  .steps .st { padding-left:46px; position:relative; }
+  .steps .st::before { counter-increment:s; content:counter(s); position:absolute; left:0; top:-2px;
+    width:32px; height:32px; background:var(--accent); color:#fff; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; font-weight:700; }
+  .pricebox { text-align:center; border:2px solid var(--accent); border-radius:14px; padding:36px 28px; max-width:420px; margin:0 auto; }
+  .pricebox .amt { font-size:52px; font-weight:800; color:var(--accent2); line-height:1; }
+  .pricebox .per { color:#5a6675; margin:6px 0 20px; }
+  .pricebox ul { text-align:left; list-style:none; padding:0; margin:0 0 24px; }
+  .pricebox li { padding:6px 0 6px 26px; position:relative; }
+  .pricebox li::before { content:"✓"; color:var(--ok); position:absolute; left:0; font-weight:700; }
+  .faq h3 { margin:22px 0 4px; font-size:17px; }
+  .faq p { margin:0; color:#4a5563; }
+  footer { padding:34px 0; color:#8a929c; font-size:13px; text-align:center; }
+  .disc { background:#fff8 ; color:#7a5b00; background:#fff4e5; border:1px solid #ffd9a8; border-radius:8px;
+    padding:12px 16px; font-size:13.5px; color:#7a5300; margin-top:22px; }
+  @media (max-width:640px){ .hero h1{font-size:30px;} .pain ul,.feat{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>Certified payroll, done in minutes — not another Excel nightmare.</h1>
+    <p class="sub">Fill, auto-calculate, and print your weekly <strong>WH-347</strong> certified payroll
+      report for a Davis-Bacon / prevailing-wage job. Gross, overtime, deductions, and net — all
+      computed for you, in the standard WH-347 column layout, with the Statement of Compliance.</p>
+    <a class="cta" href="app.html">Use the free calculator →</a>
+    <a class="cta" href="#buy" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);margin-left:10px;box-shadow:none;">Get the clean file — $79 →</a>
+    <div class="price-tag">One-time payment · no subscription · instant download</div>
+    <div class="badges">
+      <span>Runs 100% in your browser</span>
+      <span>Worker SSNs never leave your computer</span>
+      <span>No account, no login</span>
+    </div>
+  </div>
+</div>
+
+<section class="pain">
+  <div class="wrap">
+    <h2>If you work federal or state-funded construction, you know the weekly grind.</h2>
+    <p class="lead">Every week, every project, a WH-347 is due — or your payment gets held.</p>
+    <ul>
+      <li>Re-typing the same worker data into a fiddly PDF, seven days a column</li>
+      <li>Hand-computing overtime at 1.5× and hoping the math is right</li>
+      <li>Deductions and net pay that never quite tie out</li>
+      <li>A rejected report that delays the check you already earned</li>
+      <li>$200+/month enterprise software built for big GCs, not your crew</li>
+      <li>Uploading employee SSNs to some website you don't fully trust</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Everything the WH-347 needs, calculated as you type.</h2>
+    <p class="lead">Purpose-built for the form. Nothing you don't need.</p>
+    <div class="feat">
+      <div class="f"><h3>Auto day-column dates</h3><p>Enter the week-ending date; the seven day columns fill themselves.</p></div>
+      <div class="f"><h3>Overtime the right way</h3><p>OT defaults to 1.5× base, or set a custom rate. Gross and net update live.</p></div>
+      <div class="f"><h3>Deductions &amp; net pay</h3><p>FICA, federal, state, and other — netted out per worker automatically.</p></div>
+      <div class="f"><h3>Statement of Compliance</h3><p>Page 2 with the fringe-benefit (a)/(b) election and exceptions, ready to sign.</p></div>
+      <div class="f"><h3>Print to clean PDF</h3><p>Landscape federal-form layout. Print or save as PDF in one click.</p></div>
+      <div class="f"><h3>Save &amp; reuse</h3><p>Save your crew locally and export/import so next week takes minutes.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="trust">
+      <h2>Your workers' data stays on your computer.</h2>
+      <p style="margin:0;font-size:16.5px;">This is a single file that runs entirely in your browser. There is no
+      server, no upload, no login. Social Security numbers, wages, and names never travel anywhere — open it offline
+      if you like. That's not a setting you toggle; it's how the tool is built.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pain">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <div class="steps" style="margin-top:24px">
+      <div class="st"><strong>Buy &amp; download</strong> — you get one HTML file. Double-click to open in any browser.</div>
+      <div class="st"><strong>Enter your crew and hours</strong> — it calculates gross, OT, deductions, and net as you go.</div>
+      <div class="st"><strong>Click Generate PDF</strong> — print the WH-347 and Statement of Compliance, sign, and file.</div>
+    </div>
+  </div>
+</section>
+
+<section id="buy">
+  <div class="wrap">
+    <h2 style="text-align:center">One tool. One price. Yours to keep.</h2>
+    <p class="lead" style="text-align:center">No subscription, no per-report fees, no seat licenses.</p>
+    <div class="pricebox">
+      <div class="amt">$79</div>
+      <div class="per">one-time · instant download</div>
+      <ul>
+        <li>Unlimited employees &amp; payrolls</li>
+        <li>WH-347 + Statement of Compliance</li>
+        <li>Automatic OT, deductions &amp; net</li>
+        <li>100% offline — data never leaves your PC</li>
+        <li>No watermark — printouts you can actually file</li>
+      </ul>
+      <div id="checkout"></div>
+    </div>
+    <div class="disc"><strong>Not legal advice.</strong> This tool formats DOL Form WH-347 and performs the
+      arithmetic. You remain responsible for correct labor classifications, prevailing-wage rates, and fringe
+      determinations. Verify against your project's wage determination on SAM.gov before filing.</div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap">
+    <h2>Questions</h2>
+    <h3>Is this the official form?</h3>
+    <p>It prints the WH-347 payroll table and the Statement of Compliance in the standard column layout,
+    with every field the regulation requires — but it is a clean typeset report, not a pixel-for-pixel
+    scan of the DOL PDF. That's allowed: the instructions printed on Form WH-347 itself state that
+    <em>"while completion of Form WH-347 is optional, it is mandatory for covered contractors and
+    subcontractors performing work on Federally financed or assisted construction contracts to respond
+    to the information collection contained in 29 C.F.R. §§ 3.3, 5.5(a)."</em> The <strong>information</strong>
+    is what's required; the form is one accepted way to present it.</p>
+    <h3>Will my agency accept it?</h3>
+    <p>If they accept a WH-347 you fill in and submit yourself — paper, email, or PDF upload — yes.
+    If your awarding agency requires submission through <em>their own portal</em> (LCPtracker, eBacon,
+    or a state system that only takes keyed-in entries), you must submit there; this tool then serves as
+    your calculator and your own record copy. Check your contract before buying — and use the free
+    calculator first.</p>
+    <h3>Do I need to be online?</h3>
+    <p>Only to buy and download. After that it runs fully offline — a point in its favor for handling SSNs.</p>
+    <h3>Is it a subscription?</h3>
+    <p>No. Pay once, keep the file, use it for as many weeks and projects as you want.</p>
+    <h3>Which states does it cover?</h3>
+    <p>It generates the federal WH-347 used on Davis-Bacon jobs nationwide. You supply the prevailing-wage rates and classifications from your project's wage determination.</p>
+    <h3>What do I actually receive?</h3>
+    <p>A single HTML file. Double-click to open in Chrome, Edge, Safari, or Firefox. Nothing to install.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a href="app.html">Free calculator</a> ·
+    <a href="guide.html">How to fill out Form WH-347 — step-by-step guide</a><br><br>
+    WH-347 Certified Payroll Generator · not affiliated with, or endorsed by, the U.S. Department of Labor ·
+    formats a public federal form for your convenience.
+  </div>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════════
+   GO LIVE: put the PayPal account email that should RECEIVE the $79 below.
+   That is the only edit needed. Nothing else to configure, no API keys.
+   ════════════════════════════════════════════════════════════════════════════ */
+const PAYPAL_EMAIL = "";          // e.g. "you@example.com"
+const PRO_FILE = "dl/wh347-pro-8f3ka92m4x.html";
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+// PayPal Payments Standard: a plain form POST. No SDK, no keys, no server.
+// rm=2 + return= sends the buyer straight to the download after payment.
+document.getElementById("checkout").innerHTML = PAYPAL_EMAIL ? `
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="${PAYPAL_EMAIL}">
+    <input type="hidden" name="item_name" value="WH-347 Certified Payroll Generator">
+    <input type="hidden" name="amount" value="79.00">
+    <input type="hidden" name="currency_code" value="USD">
+    <input type="hidden" name="no_shipping" value="1">
+    <input type="hidden" name="no_note" value="1">
+    <input type="hidden" name="rm" value="2">
+    <input type="hidden" name="return" value="${new URL(PRO_FILE, location.href).href}">
+    <button class="cta" type="submit" style="border:0;cursor:pointer;font-family:inherit">Buy now — $79</button>
+  </form>
+  <div style="font-size:13px;color:#8a929c;margin-top:12px">Checkout by PayPal · card or PayPal balance · instant download</div>
+` : `
+  <a class="cta" href="app.html">Use the free calculator →</a>
+  <div style="font-size:13.5px;color:#5a6675;margin-top:14px;line-height:1.5">
+    Paid checkout isn't open yet. The free calculator above is the <em>same tool</em> and does every
+    calculation — the paid file just prints without the <strong>DEMO COPY</strong> watermark and works
+    offline forever. Check back shortly.
+  </div>
+`;
+</script>
+</body>
+</html>
