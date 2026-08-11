@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /wh347/dl/
+Sitemap: https://justfu7.github.io/wh347/sitemap.xml
