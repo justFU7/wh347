@@ -281,10 +281,16 @@ function computeEmployee(e) {
   const otTotal = e.ot.reduce((a,b)=>a+num(b),0);
   const rate = num(e.rate);
   const effOtRate = num(e.otRate) > 0 ? num(e.otRate) : rate * 1.5;
-  const gross = stTotal*rate + otTotal*effOtRate;
+  // Statement of Compliance election (b) = fringe paid IN CASH, so it is wages and must be
+  // in "gross amount earned". Under (a) it goes to approved plans and is not cash earnings.
+  // Fringe is never multiplied by 1.5 — only the basic rate carries the overtime premium.
+  const cashFringe = state.statement.fringe === "cash" ? num(e.fringe) : 0;
+  const stPayRate = rate + cashFringe;
+  const otPayRate = effOtRate + cashFringe;
+  const gross = stTotal*stPayRate + otTotal*otPayRate;
   const deductions = num(e.fica)+num(e.fedTax)+num(e.stateTax)+num(e.other);
   const net = gross - deductions;
-  return { stTotal, otTotal, effOtRate, gross, deductions, net };
+  return { stTotal, otTotal, effOtRate, stPayRate, otPayRate, cashFringe, gross, deductions, net };
 }
 
 function recalcTotals() {
@@ -355,7 +361,9 @@ function collectProject(){
     exceptions:$("s_exceptions").value, remarks:$("s_remarks").value
   };
 }
-function save1(){ collectProject(); saveLocal(true); }
+// Toggling the fringe (a)/(b) election changes every employee's gross, so refresh the
+// derived cells. refreshEmp touches only those cells, so typing here never loses focus.
+function save1(){ collectProject(); state.employees.forEach((_,i)=>refreshEmp(i)); saveLocal(true); }
 function onWeekChange(){ collectProject(); render(); saveLocal(true); }
 
 // ---------- persistence ----------
@@ -430,7 +438,7 @@ function buildPrintout(){
         <td rowspan="2">${esc(e.exemptions)}</td>
         <td rowspan="2" style="text-align:left">${esc(e.classification)}</td>
         <td>S</td>${stCells}<td>${c.stTotal||""}</td>
-        <td rowspan="2">${c.effOtRate?money(c.effOtRate).replace("$",""):""}<br>${num(e.rate)?money(e.rate).replace("$",""):""}${num(e.fringe)?`<br><span style="font-size:7px">+${money(e.fringe).replace("$","")} fringe</span>`:""}</td>
+        <td rowspan="2">${c.otPayRate?money(c.otPayRate).replace("$",""):""}<br>${c.stPayRate?money(c.stPayRate).replace("$",""):""}${num(e.fringe)?`<br><span style="font-size:7px">${c.cashFringe?"incl.":"+"} ${money(e.fringe).replace("$","")} fringe</span>`:""}</td>
         <td rowspan="2">${money(e.allGross>0?e.allGross:c.gross).replace("$","")}<br>
           <span style="font-size:7px">${money(c.gross).replace("$","")} this proj</span></td>
         <td>${num(e.fica)?money(e.fica).replace("$",""):""}</td>
